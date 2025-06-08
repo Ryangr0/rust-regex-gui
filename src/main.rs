@@ -17,6 +17,7 @@ use application::Renamer;
 use domain::Rule;
 use std::sync::Arc;
 use telemetry::{MemoryWriter, TracingLogger, init_tracing};
+use tracing::info;
 use tracing_subscriber::filter::LevelFilter;
 
 struct RegexApp {
@@ -29,6 +30,7 @@ struct RegexApp {
 impl RegexApp {
     fn new() -> Self {
         let log_writer = init_tracing(LevelFilter::INFO);
+        info!("RegexApp started");
         let logger = Arc::new(TracingLogger);
         let renamer = Renamer::new(logger);
         Self {
@@ -108,4 +110,15 @@ fn main() {
             .await
             .expect("failed to start eframe");
     });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn logs_are_not_empty_on_start() {
+        let app = RegexApp::new();
+        assert!(!app.log_writer.logs().is_empty());
+    }
 }
